@@ -18,10 +18,12 @@ filters = ["idx_sp500"]
 price_rawdf = pd.read_csv(f"{PATH_TO_TMP}/yahoo_ticklist_price_data_2024-02-07.csv", header=[0, 1], index_col=0)
 ticker_list = list(price_rawdf.columns.get_level_values(1).unique())
 
+# Stores the dataframes that should be passed to the backtester for simulating execution of trades.
+tickers_with_trades = []
+
 for ticker in ticker_list:
     logging.info(f"Analysing {ticker}...")
     ticker_data = price_rawdf.xs(ticker, level=1, axis=1).reset_index()
-    #print(tabulate(ticker_data, headers="keys"))
     results = ta_funcs.iterate_three_bar_spring(price_df=ticker_data, drop_percentage=-1)
 
     if results is not None:
