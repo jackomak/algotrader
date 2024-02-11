@@ -7,6 +7,7 @@ import stock_selector.funcs
 from stock_selector.funcs import finviz_get_tickers_as_list, yfinance_get_historic_data
 from tabulate import tabulate
 from technical_analysis import ta_funcs
+from trade_builder.sl_rules import tbs_first_candle_close_hard
 
 filters = ["idx_sp500"]
 # sp_500 = finviz_get_tickers_as_list(filters=filters, save_to_tmp=True, order=[])
@@ -31,7 +32,7 @@ for ticker in ticker_list:
         logging.info(f"{ticker} has >= 1 valid trade.")
 
         # TODO - Assign take profit and stop loss values to true pattern rows.
-
+        results = tbs_first_candle_close_hard(price_df=results)
 
 
         # Set SL and TP value.- Can add more into here for dynamic SL etc.
