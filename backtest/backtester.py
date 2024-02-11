@@ -33,3 +33,6 @@ class Backtester:
             date_sorted_trades = valid_trades.sort_values(by="Date")
 
         return date_sorted_trades
+
+    #def execute_trade(self):
+
