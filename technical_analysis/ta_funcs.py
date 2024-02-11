@@ -106,13 +106,9 @@ def iterate_three_bar_spring(price_df, drop_percentage):
         if is_valid_pattern:
             price_df.at[index, "Three_bar_spring"] = True
 
-    try:
+    return price_df
 
-        return price_df
 
-    except ValueError as e:
-        logging.info("Found 0 Three bar springs in dataframe.")
-        return None
 # Session.
 # ig_service = igpi.login_to_ig()
 
