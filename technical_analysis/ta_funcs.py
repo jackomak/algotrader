@@ -11,9 +11,9 @@ def calculate_percent_change(open_value, close_value):
     :param close_value:
     :return: float
     """
-    percent_change = ((close_value - open_value) / open_value) * 100
+    percent_change = round(((close_value - open_value) / open_value) * 100, 2)
     logging.info(f"Percentage change of {open_value} To {close_value} : {percent_change} %")
-    return percent_change
+    return round(percent_change, 2)
 
 
 def slice_price_matrix(price_df, index, number_of_rows: int):

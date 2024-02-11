@@ -1,3 +1,5 @@
+import logging
+from tabulate import tabulate
 import pandas as pd
 
 res_headers = ["trade_no", "ticker", "day_of_week", "date_exe", "date_stopped", "start_br", "end_br", "percent_gl",
@@ -17,6 +19,7 @@ class Backtester:
         self.price_df_dict = price_df_dict
         self.tickers = price_df_dict.keys()
         self.result_df = pd.DataFrame(columns=res_headers)
+        self.date_sorted_trades = self.sort_trades_by_date()
 
     def sort_trades_by_date(self):
         valid_trades = pd.DataFrame()
@@ -34,5 +37,45 @@ class Backtester:
 
         return date_sorted_trades
 
-    #def execute_trade(self):
+    def analyse_trade(self, row):
+        ticker = row["Source"]
+        date = pd.to_datetime(row["Date"])
+
+        price_df = self.price_df_dict[ticker]
+        df_from_trade_start = price_df[pd.to_datetime(price_df["Date"]) >= date].copy().reset_index()
+
+        # Set end params.
+        stop_loss = round(df_from_trade_start["Stop_loss"].iloc[0], 2)
+        take_profit = round(df_from_trade_start["Take_profit"].iloc[0], 2)
+
+        # Check each row in turn for a trade outcome.
+        logging.info(f"[Analysing trade for TICKER: {ticker}, DATE: {date}, STOPLOSS: {stop_loss}, TAKEP:{take_profit}.]")
+
+        for index, row in df_from_trade_start.iterrows():
+
+            # If buying on close of day.
+            if index == 0:
+                continue
+
+            if row["Low"] <= stop_loss:
+                logging.info(f"[Day {index}]. Stop loss hit for trade {date} TICKER: {ticker}.")
+                self.init_bankroll = self.init_bankroll * 0.99
+                break
+
+            if row["High"] >= take_profit:
+                logging.info(f"[Day {index}]. Take profit hit for trade {date} TICKER: {ticker}.")
+                self.init_bankroll = self.init_bankroll * 1.02
+                break
+
+            else:
+                logging.info(f"[Day {index}]. Trade in progress.")
+
+
+
+    def get_results(self):
+        for index, row in self.date_sorted_trades.iterrows():
+            self.analyse_trade(row)
+
+
+
 

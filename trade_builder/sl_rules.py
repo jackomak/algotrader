@@ -10,3 +10,4 @@ def tbs_first_candle_close_hard(price_df):
         price_df.loc[spring_rows, "Stop_loss"] = price_df.loc[drop_row, "Close"]
 
         return price_df
+
