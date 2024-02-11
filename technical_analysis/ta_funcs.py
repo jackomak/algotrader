@@ -88,7 +88,7 @@ def iterate_three_bar_spring(price_df, drop_percentage):
     Iterates through each index of a price_df. Analyses in a sliding window for Three bar spring pattern. Final two
     rows of the dataframe are removed as this will result in incomplete patterns. Headers of dataframe must include:
     headers labeled "Close" and "Open". Returns the dataframe with a new column "Three_bar_spring" that will be set to
-    True if the candle is the opening bar of the three bar spring... This dataframe can then be passed to a backtester.
+    True if the candle is the last bar of the three bar spring... This dataframe can then be passed to a backtester.
     :param price_df.
     :param drop_percentage.
     :return: pandas dataframe.
@@ -104,7 +104,7 @@ def iterate_three_bar_spring(price_df, drop_percentage):
         is_valid_pattern = identify_three_bar_spring(sliced_rows, drop_percentage)
 
         if is_valid_pattern:
-            price_df.at[index, "Three_bar_spring"] = True
+            price_df.at[index+2, "Three_bar_spring"] = True
 
     return price_df
 

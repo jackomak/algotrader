@@ -30,6 +30,15 @@ for ticker in ticker_list:
     if results["Three_bar_spring"].any():
         logging.info(f"{ticker} has >= 1 valid trade.")
 
+        # TODO - Assign take profit and stop loss values to true pattern rows.
+
+
+
+        # Set SL and TP value.- Can add more into here for dynamic SL etc.
+
+
+
+
         # Adds a key:value pair to a dict containing the ticker name and the price_df with associated valid trades.
         ticker_data_w_trades[ticker] = results
 
