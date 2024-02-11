@@ -1,0 +1,1 @@
+PATH_TO_TMP = r"C:\Users\jackb\PycharmProjects\algotrader\tmp"

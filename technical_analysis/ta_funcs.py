@@ -1,6 +1,4 @@
 import pandas as pd
-from tabulate import tabulate
-from ig_api import api_funcs as igpi
 import logging
 
 
@@ -14,11 +12,11 @@ def calculate_percent_change(open_value, close_value):
     :return: float
     """
     percent_change = ((close_value - open_value) / open_value) * 100
-    logging.info(percent_change)
+    logging.info(f"Percentage change of {open_value} To {close_value} : {percent_change} %")
     return percent_change
 
 
-def slice_price_matrix(price_df, index, number_of_rows):
+def slice_price_matrix(price_df, index, number_of_rows: int):
     """
     Slices a dataframe to get the number of subsequent requested rows (number_of_rows) from the index supplied as
     an argument. First row in pandas dataframe has a matrix of zero. e.g. slice_price_matrix(price_df, 0, 3) will return
@@ -34,6 +32,7 @@ def slice_price_matrix(price_df, index, number_of_rows):
     try:
         assert len(sliced_price_df) == number_of_rows
         return sliced_price_df
+
     except AssertionError as e:
         if index > len(sliced_price_df - 1):
             logging.info("Index supplied is larger than number of rows in dataframe (-1).")
@@ -43,10 +42,10 @@ def slice_price_matrix(price_df, index, number_of_rows):
             logging.info("Sliced dataframe != number of rows. Input dataframe too small?")
 
 
-def identify_three_bar_spring(three_row_df, drop_value_percentage):
+def identify_three_bar_spring(three_row_df, drop_value_percentage: float):
     """
     Analyses a price info dataframe for the appearance of a three-bar wykoff spring pattern. The drop_value of the
-    spring is the difference between the 1st candle open and the 1st candle close. The function assesses the price
+    spring is the difference between the 1st candle open and the 1st candle close. This function assesses the price
     information of the df["index"] as the 1st "drop" candle and the next two rows as the "spring" and "thrust" candle.
     using the following rules:
 
@@ -104,9 +103,13 @@ def iterate_three_bar_spring(price_df, drop_percentage):
         if is_valid_pattern:
             selected_rows.append(row.to_frame().T)
 
-    results = pd.concat(selected_rows, ignore_index=True)
-    return results
+    try:
+        results = pd.concat(selected_rows, ignore_index=True)
+        return results
 
+    except ValueError as e:
+        logging.info("Found 0 Three bar springs in dataframe.")
+        return None
 # Session.
 # ig_service = igpi.login_to_ig()
 
