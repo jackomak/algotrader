@@ -1,5 +1,6 @@
 import logging
 from tabulate import tabulate
+
 import pandas as pd
 
 res_headers = ["trade_no", "ticker", "day_of_week", "date_exe", "date_stopped", "start_br", "end_br", "percent_gl",
@@ -41,6 +42,7 @@ class Backtester:
         ticker = row["Source"]
         date = pd.to_datetime(row["Date"])
 
+        # Get the relevant dataframe and splice it to only include relevant rows.
         price_df = self.price_df_dict[ticker]
         df_from_trade_start = price_df[pd.to_datetime(price_df["Date"]) >= date].copy().reset_index()
 
@@ -49,9 +51,11 @@ class Backtester:
         take_profit = round(df_from_trade_start["Take_profit"].iloc[0], 2)
 
         # Check each row in turn for a trade outcome.
-        logging.info(f"[Analysing trade for TICKER: {ticker}, DATE: {date}, STOPLOSS: {stop_loss}, TAKEP:{take_profit}.]")
+        logging.info(
+            f"[Analysing trade for TICKER: {ticker}, DATE: {date}, STOPLOSS: {stop_loss}, TAKEP:{take_profit}.]")
 
         for index, row in df_from_trade_start.iterrows():
+            outcome = "none"
 
             # If buying on close of day.
             if index == 0:
@@ -59,23 +63,33 @@ class Backtester:
 
             if row["Low"] <= stop_loss:
                 logging.info(f"[Day {index}]. Stop loss hit for trade {date} TICKER: {ticker}.")
-                self.init_bankroll = self.init_bankroll * 0.99
+                outcome = "lose"
                 break
 
             if row["High"] >= take_profit:
                 logging.info(f"[Day {index}]. Take profit hit for trade {date} TICKER: {ticker}.")
-                self.init_bankroll = self.init_bankroll * 1.02
+                outcome = "win"
                 break
 
             else:
                 logging.info(f"[Day {index}]. Trade in progress.")
+                outcome = "ongoing"
 
-
+        return outcome
 
     def get_results(self):
+        bankroll_vals = []
         for index, row in self.date_sorted_trades.iterrows():
-            self.analyse_trade(row)
+            outcome = self.analyse_trade(row)
 
+            # Update the bankroll with respect to the trade outcomes.
+            if outcome == "lose":
+                self.init_bankroll = self.init_bankroll * 0.99
 
+            if outcome == "win":
+                self.init_bankroll = self.init_bankroll * 1.03
 
+            logging.info(f"BANKROLL: {self.init_bankroll}")
+            bankroll_vals.append(self.init_bankroll)
 
+        print(bankroll_vals)
